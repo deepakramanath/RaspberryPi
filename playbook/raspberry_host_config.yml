@@ -1,0 +1,16 @@
+# Playbook to confgiure RPIs
+# Author: Deepak Ramanath
+# Date: 24-May-2020
+
+- hosts: rpi_cluster
+  gather_facts: yes
+  tasks:
+    - name: Configure and update RPIs
+      import_role:
+        name: raspberry_host_config
+      tags:
+        - rpi_host_config
+       
+
+
+  

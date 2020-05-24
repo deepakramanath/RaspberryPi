@@ -1,0 +1,6 @@
+---
+# Tasks to configure RPI
+
+- name: Display hostname
+  command: hostname
+...

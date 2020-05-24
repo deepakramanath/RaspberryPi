@@ -1,0 +1,7 @@
+---
+
+# Group vars for RPI cluster
+
+rpi_domain: "{{ allconf.rpi_cluster.domain }}"
+
+...

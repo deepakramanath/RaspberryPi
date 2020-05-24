@@ -1,0 +1,7 @@
+---
+# tasks file for roles/raspberry_host_config
+
+- name: Configure RPI
+  import_tasks: configure_rpi.yml
+  tags:
+    - congiure_rpi

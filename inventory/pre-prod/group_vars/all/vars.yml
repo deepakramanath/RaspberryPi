@@ -1,0 +1,27 @@
+# All vars file
+---
+
+allconf:
+  rpi_cluster:
+    domain: "rpi.local"
+    sub_domain: ""
+    subnets:
+    hosts:
+      rpi_01:
+        ip_address: "192.168.2.10"
+        hostname: "rpi-01"
+        cname: "rpi-01"
+      rpi_02:
+        ip_address: "192.168.2.11"
+        hostname: "rpi-02"
+        cname: "rpi-02"
+      rpi_03:
+        ip_address: "192.168.2.12"
+        hostname: "rpi-03"
+        cname: "rpi-03"
+      rpi_04:
+        ip_address: "192.168.2.13"
+        hostname: "rpi-04"
+        cname: "rpi-04"
+
+...

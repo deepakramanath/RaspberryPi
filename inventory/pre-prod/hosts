@@ -1,0 +1,7 @@
+# Ansible inventory
+
+[rpi_cluster]
+rpi_01
+rpi_02
+rpi_03
+rpi_04

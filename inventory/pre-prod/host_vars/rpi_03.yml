@@ -1,0 +1,9 @@
+# Ansible host vars for RPI-03
+---
+
+ansible_host: "{{ allconf.rpi_cluster.hosts.rpi_03.ip_address }}"
+ansible_hostname: "{{ allconf.rpi_cluster.hosts.rpi_03.hostname }}"
+ansible_fqdn: "{{ allconf.rpi_cluster.hosts.rpi_03.hostname }}.{{ rpi_domain }}"
+ansible_cname: "{{ allconf.rpi_cluster.hosts.rpi_03.cname }}"
+
+...
