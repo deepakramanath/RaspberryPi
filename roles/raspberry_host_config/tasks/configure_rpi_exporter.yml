@@ -34,10 +34,6 @@
     use_regex: yes
   register: rpi_exporter_executable
 
-- name: Debug
-  debug:
-    msg: "{{ rpi_exporter_executable.files | map(attribute = 'path') | list }}"
-
 - name: Copy rpi_exporter executable to usr/local/bin
   become: yes
   copy:
@@ -57,10 +53,6 @@
   loop: "{{ rpi_exporter_executable.files | map(attribute = 'path') | list }}"
   when: "'service' not in item.split('/')[-1]"
   
-- name: Debug
-  debug:
-    msg: "{{ rpi_exporter_stat.results[0]['stat']['exists'] }}"
-
 - name: Template the systemd unit file for rpi_exporter
   become: yes
   template:
