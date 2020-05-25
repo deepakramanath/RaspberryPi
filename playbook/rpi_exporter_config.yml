@@ -7,9 +7,9 @@
   tasks:
     - name: Configure and update RPIs
       import_role:
-        name: raspberry_host_config
+        name: rpi_exporter_config
       tags:
-        - rpi_host_config
+        - rpi_exporter_config
        
 
 
