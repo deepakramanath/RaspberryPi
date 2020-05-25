@@ -1,0 +1,85 @@
+---
+# Tasks to configure RPI exporter for monitring CPU temerature
+
+- name: Create rpi_exporter group
+  become: yes
+  group:
+    name: "{{ rpi_exporter_group }}"
+    state: present
+
+- name: Create rpi_exporter user
+  become: yes
+  user:
+    name: "{{ rpi_exporter_user }}"
+    group: "{{ rpi_exporter_user }}"
+    state: present
+    system: yes
+    shell: "/sbin/nologin"
+    comment: "{{ rpi_exporter_user }} nologin User"
+    createhome: no
+
+- name: Unarchive RPI exporter tar.gz
+  become: yes
+  unarchive:
+    src: "{{ rpi_exporter_source }}"
+    dest: /tmp/
+    remote_src: yes
+
+- name: Find extracted file
+  become: yes
+  find:
+    path: /tmp
+    recurse: yes
+    pattern: '.*rpi.*'
+    use_regex: yes
+  register: rpi_exporter_executable
+
+- name: Debug
+  debug:
+    msg: "{{ rpi_exporter_executable.files | map(attribute = 'path') | list }}"
+
+- name: Copy rpi_exporter executable to usr/local/bin
+  become: yes
+  copy:
+    src: "{{ item }}"
+    dest: "/usr/local/bin/"
+    owner: "{{ rpi_exporter_user }}"
+    group: "{{ rpi_exporter_group }}"
+    remote_src: yes
+    mode: 0755
+  loop: "{{ rpi_exporter_executable.files | map(attribute = 'path') | list }}"
+  when: "'service' not in item.split('/')[-1]"
+
+- name: Get statistics on the rpi_exporter file
+  stat:
+    path: "/usr/local/bin/{{ item.split('/')[-1] }}"
+  register: rpi_exporter_stat
+  loop: "{{ rpi_exporter_executable.files | map(attribute = 'path') | list }}"
+  when: "'service' not in item.split('/')[-1]"
+  
+- name: Debug
+  debug:
+    msg: "{{ rpi_exporter_stat.results[0]['stat']['exists'] }}"
+
+- name: Template the systemd unit file for rpi_exporter
+  become: yes
+  template:
+    src: rpi_exporter_service.j2
+    dest: /etc/systemd/system/rpi_exporter.service
+  when: "rpi_exporter_stat.results[0]['stat']['exists'] == true"
+
+- name: Start rpi_exporter daemon
+  become: yes
+  service:
+    name: rpi_exporter
+    state: started
+    enabled: yes
+  when: "rpi_exporter_stat.results[0]['stat']['exists'] == true"
+
+- name: Check if RPi exporter emits metrices
+  uri:
+    url: http://127.0.0.1:9243/metrics
+    method: GET
+    status_code: 200
+
+...

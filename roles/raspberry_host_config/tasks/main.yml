@@ -5,3 +5,8 @@
   import_tasks: configure_rpi.yml
   tags:
     - congiure_rpi
+
+- name: Configure rpi_exporter
+  import_tasks: configure_rpi_exporter.yml
+  tags:
+    - configure_rpi_exporter

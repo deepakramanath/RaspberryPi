@@ -4,4 +4,11 @@
 
 rpi_domain: "{{ allconf.rpi_cluster.domain }}"
 
+# RPI exporter variables
+rpi_exporter_group: "rpi_exporter"
+rpi_exporter_user: "rpi_exporter"
+
+# RPI exporter source
+rpi_exporter_source: "https://github.com/lukasmalkmus/rpi_exporter/releases/download/v0.6.0/rpi_exporter-0.6.0.linux-armv7.tar.gz"
+
 ...

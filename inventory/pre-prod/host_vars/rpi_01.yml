@@ -2,8 +2,8 @@
 
 ---
 ansible_host: "{{ allconf.rpi_cluster.hosts.rpi_01.ip_address }}"
-ansible_hostname: "{{ allconf.rpi_cluster.hosts.rpi_01.hostname }}"
-ansible_fqdn: "{{ allconf.rpi_cluster.hosts.rpi_01.hostname }}.{{ rpi_domain }}"
+ansible_host_name: "{{ allconf.rpi_cluster.hosts.rpi_01.hostname }}"
+ansible_host_fqdn: "{{ allconf.rpi_cluster.hosts.rpi_01.hostname }}.{{ rpi_domain }}"
 ansible_cname: "{{ allconf.rpi_cluster.hosts.rpi_01.cname }}"
 
 ...

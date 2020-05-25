@@ -1,6 +1,24 @@
 ---
 # Tasks to configure RPI
 
-- name: Display hostname
-  command: hostname
+- name: Debug
+  debug:
+    msg: "{{ ansible_host_fqdn }}"
+
+- name: Configure hostname
+  become: yes
+  command: "hostnamectl set-hostname {{ ansible_host_fqdn }}"
+
+- name: Update all packages
+  become: yes
+  apt:
+    upgrade: dist
+    update_cache: yes
+
+- name: Upgrade all packages to the lastest version
+  become: yes
+  apt:
+    name: "*"
+    state: latest
+
 ...
