@@ -1,0 +1,103 @@
+---
+# Tasks for configuring Prometheus
+
+- name: Create prometheus group
+  become: yes
+  group:
+    name: "{{ prometheus_group }}"
+    state: present
+
+- name: Create prometheus user
+  become: yes
+  user:
+    name: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    state: present
+    system: yes
+    shell: "/sbin/nologin"
+    comment: "{{ prometheus_user }} nologin User"
+    createhome: no
+
+- name: Unarchive prometheus tar.gz
+  become: yes
+  unarchive:
+    src: "{{ prometheus_source }}"
+    dest: /tmp/
+    remote_src: yes
+
+- name: Find extracted file
+  become: yes
+  find:
+    path: /tmp
+    recurse: yes
+    pattern: '.*prometheus.*'
+    use_regex: yes
+  register: prometheus_executable
+
+- name: Copy prometheus executable to usr/local/bin
+  become: yes
+  copy:
+    src: "{{ item }}"
+    dest: "/usr/local/bin/"
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    remote_src: yes
+    mode: 0755
+  loop: "{{ prometheus_executable.files | map(attribute = 'path') | list }}"
+  when: "'service' not in item.split('/')[-1]"
+
+- name: Create data directory for storing prometheus data and config dir
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    mode: 0755
+  loop:
+    - "{{ prometheus_data_dir }}"
+    - "{{ prometheus_config_dir }}"
+
+- name: Get statistics on the prometheus file
+  stat:
+    path: "/usr/local/bin/{{ item.split('/')[-1] }}"
+  register: prometheus_stat
+  loop: "{{ prometheus_executable.files | map(attribute = 'path') | list }}"
+  when: "'service' not in item.split('/')[-1]"
+
+- name: Template the Prometheus conf file
+  become: yes
+  template:
+    src: prometheus.conf.j2
+    dest: "{{ prometheus_config_dir }}/prometheus.conf"
+
+- name: Template systemd unit file for prometheus
+  become: yes
+  template:
+    src: prometheus_service.j2
+    dest: /etc/systemd/system/prometheus.service
+  when: "prometheus_stat.results[0]['stat']['exists'] == true"
+
+- name: Reload systemd
+  become: yes
+  command: systemctl daemon-reload
+
+- name: Start prometheus daemon
+  become: yes
+  service:
+    name: prometheus
+    state: started
+    enabled: yes
+  when: "prometheus_stat.results[0]['stat']['exists'] == true"
+
+- name: Check if prometheus is accessible
+  uri:
+    url: http://127.0.0.1:9090
+    method: GET
+    status_code: 200
+
+
+
+
+
+...

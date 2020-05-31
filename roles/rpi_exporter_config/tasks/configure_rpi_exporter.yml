@@ -11,7 +11,7 @@
   become: yes
   user:
     name: "{{ rpi_exporter_user }}"
-    group: "{{ rpi_exporter_user }}"
+    group: "{{ rpi_exporter_group }}"
     state: present
     system: yes
     shell: "/sbin/nologin"
@@ -44,14 +44,14 @@
     remote_src: yes
     mode: 0755
   loop: "{{ rpi_exporter_executable.files | map(attribute = 'path') | list }}"
-  when: "'service' not in item.split('/')[-1]"
+  when: "'service' not in item.split('/')[-1] and 'node' not in item.split('/')[-1]"
 
 - name: Get statistics on the rpi_exporter file
   stat:
     path: "/usr/local/bin/{{ item.split('/')[-1] }}"
   register: rpi_exporter_stat
   loop: "{{ rpi_exporter_executable.files | map(attribute = 'path') | list }}"
-  when: "'service' not in item.split('/')[-1]"
+  when: "'service' not in item.split('/')[-1] and 'node' not in item.split('/')[-1]"
   
 - name: Template the systemd unit file for rpi_exporter
   become: yes

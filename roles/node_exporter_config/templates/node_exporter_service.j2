@@ -1,0 +1,14 @@
+[Unit]
+Description=node_exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+Restart=on-failure
+User={{ rpi_exporter_user }}
+Group={{ rpi_exporter_user }}
+ExecStart=/usr/local/bin/node_exporter
+
+[Install]
+WantedBy=multi-user.target

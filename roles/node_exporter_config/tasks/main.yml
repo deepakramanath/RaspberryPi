@@ -1,0 +1,8 @@
+---
+# tasks file for node_exporter_config
+
+- name: Configure node exporter
+  import_tasks: configure_node_exporter.yml
+  tags:
+    - configure_node_exporter
+

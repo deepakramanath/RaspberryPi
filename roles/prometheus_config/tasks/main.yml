@@ -1,0 +1,13 @@
+---
+# tasks file for prometheus_config
+
+- name: Configure Prometheus
+  import_tasks: configure_prometheus.yml
+  tags:
+    - configure_prometheus
+
+- name: Configure Grafana
+  import_tasks: configure_grafana.yml
+  tags:
+    - configure_grafana
+

@@ -1,0 +1,33 @@
+---
+# Tasks to install grafana
+
+- name: Install adduser and libfontconfig1
+  become: yes
+  apt:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - adduser
+    - libfontconfig1
+
+- name: Install grafana
+  become: yes
+  apt:
+    deb: https://dl.grafana.com/oss/release/grafana_7.0.1_armhf.deb
+
+- name: Install/update grafana status panel plugin
+  become: yes
+  grafana_plugin:
+    name: vonage-status-panel
+    version: latest
+    state: present
+
+- name: Start grafana service
+  become: yes
+  service:
+    name: grafana-server
+    state: started
+    enabled: yes
+
+
+...

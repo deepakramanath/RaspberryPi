@@ -1,0 +1,28 @@
+# Playbook to confgiure RPIs
+# Author: Deepak Ramanath
+# Date: 24-May-2020
+
+- hosts: rpi_cluster
+  gather_facts: yes
+  tasks:
+    - name: Configure and update RPIs
+      import_role:
+        name: rpi_exporter_config
+      tags:
+        - rpi_exporter_config
+
+    - name: Configure node exporter
+      import_role:
+        name: node_exporter_config
+      tags:
+        - node_exporter_config 
+
+
+- hosts: rpi_01
+  gather_facts: yes
+  tasks:
+    - name: Configure prometheus
+      import_role:
+        name: prometheus_config
+      tags:
+        - prometheus_config 

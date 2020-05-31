@@ -1,0 +1,81 @@
+---
+# Tasks for configuring node exporter, a metrics exporter for Promethus
+
+- name: Create node_exporter group
+  become: yes
+  group:
+    name: "{{ node_exporter_group }}"
+    state: present
+
+- name: Create node_exporter user
+  become: yes
+  user:
+    name: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_group }}"
+    state: present
+    system: yes
+    shell: "/sbin/nologin"
+    comment: "{{ node_exporter_user }} nologin User"
+    createhome: no
+
+- name: Unarchive node exporter tar.gz
+  become: yes
+  unarchive:
+    src: "{{ node_exporter_source }}"
+    dest: /tmp/
+    remote_src: yes
+
+- name: Find extracted file
+  become: yes
+  find:
+    path: /tmp
+    recurse: yes
+    pattern: '.*node.*'
+    use_regex: yes
+  register: node_exporter_executable
+
+- name: Copy node_exporter executable to usr/local/bin
+  become: yes
+  copy:
+    src: "{{ item }}"
+    dest: "/usr/local/bin/"
+    owner: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_group }}"
+    remote_src: yes
+    mode: 0755
+  loop: "{{ node_exporter_executable.files | map(attribute = 'path') | list }}"
+  when: "'service' not in item.split('/')[-1] and 'rpi' not in item.split('/')[-1]"
+
+- name: Get statistics on the node_exporter file
+  stat:
+    path: "/usr/local/bin/{{ item.split('/')[-1] }}"
+  register: node_exporter_stat
+  loop: "{{ node_exporter_executable.files | map(attribute = 'path') | list }}"
+  when: "'service' not in item.split('/')[-1] and 'rpi' not in item.split('/')[-1]"
+
+- name: Template the systemd unit file for node_exporter
+  become: yes
+  template:
+    src: node_exporter_service.j2
+    dest: /etc/systemd/system/node_exporter.service
+  when: "node_exporter_stat.results[0]['stat']['exists'] == true"
+
+- name: Start node_exporter daemon
+  become: yes
+  service:
+    name: node_exporter
+    state: started
+    enabled: yes
+  when: "node_exporter_stat.results[0]['stat']['exists'] == true"
+
+- name: Check if Node exporter emits metrices
+  uri:
+    url: http://127.0.0.1:9100/metrics
+    method: GET
+    status_code: 200
+
+
+
+
+...
+
